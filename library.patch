@@ -102,7 +102,7 @@
 -	$headers=explode("\r\n",$headers_line) ;
 -	foreach($headers as $header)
 +	if (!is_array($headers)) {
-+		$headers = explode("\r\n", $headers_line);
++		$headers = explode("\r\n", $headers);
 +	}
 +	foreach ($headers as $header) {
  		if (strpos($header,'From:') === 0)
