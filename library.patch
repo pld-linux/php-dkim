@@ -1,5 +1,5 @@
---- php-dkim-1.0/dkim.php~	2010-03-31 15:56:18.000000000 +0300
-+++ php-dkim-1.0/dkim.php	2010-03-31 15:59:36.851141195 +0300
+--- php-dkim-1.0/dkim.php	2010-03-31 15:59:36.851141195 +0300
++++ php-dkim-1.0/dkim.php	2010-03-31 16:06:27.390680644 +0300
 @@ -20,18 +20,21 @@
  *THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ***************************************************************************/
@@ -25,7 +25,7 @@
  	global $open_SSL_pub,$DKIM_s ;
 +
 +	if (empty($open_SSL_pub)) {
-+		error_log("dkim.php: ERROR: open_SSL_priv not set");
++		error_log("dkim.php: ERROR: open_SSL_pub not set");
 +		return false;
 +	}
  	
@@ -70,7 +70,7 @@
  }
  
  function SimpleHeaderCanonicalization($s) {
-@@ -115,7 +123,12 @@
+@@ -115,8 +123,23 @@
  	return $body ;
  }
  
@@ -82,9 +82,20 @@
 + */
 +function AddDKIM($headers, $subject, $body) {
  	global $DKIM_s, $DKIM_d, $DKIM_i;
++
++	if (empty($DKIM_d)) {
++		error_log("dkim.php: DKIM_d is not set");
++		return false;
++	}
++
++	if (empty($DKIM_s)) {
++		error_log("dkim.php: DKIM_s is not set");
++		return false;
++	}
  	
  //??? a tester	$body=str_replace("\n","\r\n",$body) ;
-@@ -124,12 +137,15 @@
+ 	$DKIM_a='rsa-sha1'; // Signature & hash algorithms
+@@ -124,12 +147,15 @@
  	$DKIM_q='dns/txt'; // Query method
  	$DKIM_t=time() ; // Signature Timestamp = number of seconds since 00:00:00 on January 1, 1970 in the UTC time zone
  	$subject_header="Subject: $subject" ;
@@ -102,3 +113,6 @@
  	$from=str_replace('|','=7C',DKIMQuotedPrintable($from_header)) ;
  	$to=str_replace('|','=7C',DKIMQuotedPrintable($to_header)) ;
  	$subject=str_replace('|','=7C',DKIMQuotedPrintable($subject_header)) ; // Copied header fields (dkim-quoted-printable
+@@ -154 +179,0 @@
+-?>
+\ No newline at end of file
