@@ -1,6 +1,6 @@
 --- php-dkim-1.0/dkim.php	2010-03-31 15:59:36.851141195 +0300
 +++ php-dkim-1.0/dkim.php	2010-03-31 16:06:27.390680644 +0300
-@@ -20,18 +20,21 @@
+@@ -20,18 +20,25 @@
  *THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ***************************************************************************/
  
@@ -26,6 +26,10 @@
 +
 +	if (empty($open_SSL_pub)) {
 +		error_log("dkim.php: ERROR: open_SSL_pub not set");
++		return false;
++	}
++	if (empty($DKIM_s)) {
++		error_log("dkim.php: DKIM_s is not set");
 +		return false;
 +	}
  	
