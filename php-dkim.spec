@@ -4,11 +4,12 @@
 Summary:	PHP Implementation of DKIM
 Name:		php-%{pkgname}
 Version:	1.0
-Release:	0.1
+Release:	1
 License:	GPL v2
 Group:		Development/Languages/PHP
 Source0:	http://downloads.sourceforge.net/project/php-dkim/php-dkim/v%{version}/php-dkim.zip
 # Source0-md5:	6d7e89b035f76c83ad93e597ffe9f06c
+Patch0:		library.patch
 URL:		http://php-dkim.sourceforge.net/
 BuildRequires:	lynx
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
@@ -42,6 +43,7 @@ tagged as spam.
 %prep
 %setup -qc
 %undos README.html *.php
+%patch0 -p1
 
 mv dkim-cfg-dist.php dkim-cfg.php
 

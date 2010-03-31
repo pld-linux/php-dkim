@@ -1,0 +1,104 @@
+--- php-dkim-1.0/dkim.php~	2010-03-31 15:56:18.000000000 +0300
++++ php-dkim-1.0/dkim.php	2010-03-31 15:59:36.851141195 +0300
+@@ -20,18 +20,21 @@
+ *THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  ***************************************************************************/
+ 
+-require_once 'dkim-cfg.php' ;
+-
+-if ($open_SSL_pub == '' or $open_SSL_priv == '') {
+-	die("DKIM not configured, please run:<ol>
+-	<li>openssl genrsa -out key.priv 384</li>
+-	<li>openssl rsa -in key.priv -out key.pub -pubout -outform PEM</li>
+-	</ol> 
+-	Then copy & paste the public and private keys into dkim-cfg.php") ;
+-}
++/**
++  * To setup DKIM, please run:
++  * openssl genrsa -out key.priv 384
++  *	openssl rsa -in key.priv -out key.pub -pubout -outform PEM
++  *
++  *	and setup them accordingly to dkim-cfg.php
++  */
+ 
+ function BuildDNSTXTRR() {
+ 	global $open_SSL_pub,$DKIM_s ;
++
++	if (empty($open_SSL_pub)) {
++		error_log("dkim.php: ERROR: open_SSL_priv not set");
++		return false;
++	}
+ 	
+ 	$pub_lines=explode("\n",$open_SSL_pub) ;
+ 	$txt_record="$DKIM_s._domainkey\tIN\tTXT\t\"v=DKIM1\\; k=rsa\\; g=*\\; s=email\; h=sha1\\; t=s\\; p=" ;
+@@ -61,22 +64,27 @@
+ }
+ 
+ function DKIMBlackMagic($s) {
+-	global $open_SSL_priv ;
+-	if (openssl_sign($s, $signature, $open_SSL_priv))
++	global $open_SSL_priv;
++	if (empty($open_SSL_priv)) {
++		error_log("dkim.php: ERROR: open_SSL_priv not set");
++		return false;
++	}
++	if (openssl_sign($s, $signature, $open_SSL_priv)) {
+ 		return base64_encode($signature) ;
+-	else
+-		die("Cannot sign") ;
++	} else {
++		return false;
++	}
+ }
+ 
+ function NiceDump($what,$body) {
+-	print("After canonicalization ($what):\n") ;
++	echo "After canonicalization (", $what, ":\n";
+ 	for ($i=0; $i<strlen($body); $i++)
+-		if ($body[$i] == "\r") print("'OD'") ;
+-		elseif ($body[$i] == "\n") print("'OA'\n") ;
+-		elseif ($body[$i] == "\t") print("'09'") ;
+-		elseif ($body[$i] == " ") print("'20'") ;
+-		else print($body[$i]) ;
+-	print("\n------\n") ;
++		if ($body[$i] == "\r") echo "'OD'";
++		elseif ($body[$i] == "\n") "'OA'\n";
++		elseif ($body[$i] == "\t") echo "'09'";
++		elseif ($body[$i] == " ") echo "'20'";
++		else echo $body[$i];
++	echo "\n------\n";
+ }
+ 
+ function SimpleHeaderCanonicalization($s) {
+@@ -115,7 +123,12 @@
+ 	return $body ;
+ }
+ 
+-function AddDKIM($headers_line,$subject,$body) {
++/**
++ * @mixed	$headers
++ * @string	$subject
++ * @mixed	$body
++ */
++function AddDKIM($headers, $subject, $body) {
+ 	global $DKIM_s, $DKIM_d, $DKIM_i;
+ 	
+ //??? a tester	$body=str_replace("\n","\r\n",$body) ;
+@@ -124,12 +137,15 @@
+ 	$DKIM_q='dns/txt'; // Query method
+ 	$DKIM_t=time() ; // Signature Timestamp = number of seconds since 00:00:00 on January 1, 1970 in the UTC time zone
+ 	$subject_header="Subject: $subject" ;
+-	$headers=explode("\r\n",$headers_line) ;
+-	foreach($headers as $header)
++	if (!is_array($headers)) {
++		$headers = explode("\r\n", $headers_line);
++	}
++	foreach ($headers as $header) {
+ 		if (strpos($header,'From:') === 0)
+ 			$from_header=$header ;
+ 		elseif (strpos($header,'To:') === 0)
+ 			$to_header=$header ;
++	}
+ 	$from=str_replace('|','=7C',DKIMQuotedPrintable($from_header)) ;
+ 	$to=str_replace('|','=7C',DKIMQuotedPrintable($to_header)) ;
+ 	$subject=str_replace('|','=7C',DKIMQuotedPrintable($subject_header)) ; // Copied header fields (dkim-quoted-printable
