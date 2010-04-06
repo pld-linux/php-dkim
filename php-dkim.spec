@@ -14,6 +14,7 @@ URL:		http://php-dkim.sourceforge.net/
 BuildRequires:	lynx
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 BuildRequires:	rpmbuild(macros) >= 1.533
+BuildRequires:	unzip
 Requires:	php-common >= 4:%{php_min_version}
 Requires:	php-date
 Requires:	php-openssl
