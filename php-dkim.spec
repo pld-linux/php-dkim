@@ -4,10 +4,10 @@
 Summary:	PHP Implementation of DKIM
 Name:		php-%{pkgname}
 Version:	1.0
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Development/Languages/PHP
-Source0:	http://downloads.sourceforge.net/project/php-dkim/php-dkim/v%{version}/php-dkim.zip
+Source0:	http://downloads.sourceforge.net/php-dkim/php-dkim.zip
 # Source0-md5:	6d7e89b035f76c83ad93e597ffe9f06c
 Patch0:		library.patch
 URL:		http://php-dkim.sourceforge.net/
@@ -15,10 +15,10 @@ BuildRequires:	lynx
 BuildRequires:	rpm-php-pearprov >= 4.4.2-11
 BuildRequires:	rpmbuild(macros) >= 1.533
 BuildRequires:	unzip
-Requires:	php-common >= 4:%{php_min_version}
-Requires:	php-date
-Requires:	php-openssl
-Requires:	php-pcre
+Requires:	php(core) >= %{php_min_version}
+Requires:	php(date)
+Requires:	php(openssl)
+Requires:	php(pcre)
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
