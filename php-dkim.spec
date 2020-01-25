@@ -1,4 +1,3 @@
-%include	/usr/lib/rpm/macros.php
 %define		php_min_version 5.0.0
 %define		pkgname	dkim
 Summary:	PHP Implementation of DKIM
